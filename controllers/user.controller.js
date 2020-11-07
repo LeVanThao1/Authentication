@@ -2,7 +2,7 @@ const User = require('../models/user.model')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const sendMail = require('../helper/mailer')
-
+const _ = require('lodash')
 const {
     CLIENT_URL,
     ACCESS_TOKEN_SECRET,
@@ -127,7 +127,7 @@ const userCtl = {
     },
     getAccessToken: async (req, res, next) => {
         try {
-            const rf_token = req.cookie.refresh_token
+            const rf_token = req.cookies.refresh_token
             if (!rf_token) {
                 return res.status(400).json({ msg: 'Please login now.' })
             }
@@ -176,8 +176,14 @@ const userCtl = {
     },
     resetPassword: async (req, res, next) => {
         try {
-            const { password, user } = req.body
+            const { user, body } = req
+            const { password } = body
 
+            if (!password || !user) {
+                return res
+                    .status(400)
+                    .json({ msg: 'Please fill in all fields.' })
+            }
             const hashPassword = await bcrypt.hash(password, 12)
 
             await User.findOneAndUpdate(
@@ -248,13 +254,10 @@ const userCtl = {
     updateUser: async (req, res) => {
         try {
             const { name, avatar } = req.body
-            await User.findOneAndUpdate(
-                { _id: req.user.id },
-                {
-                    name,
-                    avatar,
-                },
-            )
+            const data = { name, avatar }
+
+            _.omitBy(data, _.isNull)
+            await User.findOneAndUpdate({ _id: req.user.id }, data)
 
             res.status(200).json({ msg: 'Update Success!' })
         } catch (err) {
