@@ -14,9 +14,12 @@ app.use(
         useTempFiles: true,
     }),
 )
+
+app.use('/user', require('./routes/user.router'))
 //connect database
 require('./helper/init-mongoose')
-
+// Routes
+// app.use('/api', require('./routes/upload'))
 app.use('/', (req, res, next) => {
     res.json({ message: 'Le Van Thao' })
 })
