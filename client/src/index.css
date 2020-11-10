@@ -1,3 +1,4 @@
+@import 'antd/dist/antd.css';
 * {
     padding: 0;
     box-sizing: border-box;
@@ -37,4 +38,4 @@ button {
 @import url('./components/body/auth/style.css');
 
 /* ----------------- Profile ------------------- */
-/* @import url('./components/body/profile/style.css'); */
+@import url('./components/body/profile/style.css');

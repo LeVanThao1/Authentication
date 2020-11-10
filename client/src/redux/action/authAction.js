@@ -11,6 +11,7 @@ export const fetchUser = async (token) => {
     const res = await axios.get('/user/infor', {
         headers: { Authorization: token },
     })
+    return res
 }
 
 export const dispatchGetUser = (res) => {

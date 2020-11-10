@@ -3,6 +3,11 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const sendMail = require('../helper/mailer')
 const _ = require('lodash')
+const { google } = require('googleapis')
+const { OAuth2 } = google.auth
+const fetch = require('node-fetch')
+const client = new OAuth2(process.env.MAILLING_SERVICE_CLIENT_ID)
+
 const {
     CLIENT_URL,
     ACCESS_TOKEN_SECRET,
@@ -262,6 +267,51 @@ const userCtl = {
             res.status(200).json({ msg: 'Update Success!' })
         } catch (err) {
             return res.status(500).json({ msg: err.message })
+        }
+    },
+    googleLogin: async (req, res, next) => {
+        const { tokenId } = req.body
+        const verify = await client.verifyIdToken({
+            idToken: tokenId,
+            audience: process.env.MAILLING_SERVICE_CLIENT_ID,
+        })
+        const { email_verified, email, name, picture } = verify.payload
+
+        const password = email + process.env.GOOGLE_SECRET
+        const passwordHash = await bcrypt.hash(password, 12)
+        if (!email_verified) {
+            return res.status(400).json({ msg: 'Email verification failed.' })
+        }
+        const user = await User.findOne({ email })
+        if (user) {
+            const isMatch = await bcrypt.compare(password, user.password)
+            if (!isMatch) {
+                return res.status(400).json({ msg: 'Password is incorrect' })
+            }
+            const refresh_token = createRefreshToken({ id: user.id })
+            res.cookie('refresh_token', refresh_token, {
+                httpOnly: true,
+                path: '/user/refresh_token',
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngay
+            })
+            res.status(200).json({ msg: 'Login succes' })
+        } else {
+            const newUser = new User({
+                name,
+                email,
+                password: passwordHash,
+                avatar: picture,
+            })
+
+            await newUser.save()
+
+            const refresh_token = createRefreshToken({ id: newUser._id })
+            res.cookie('refresh_token', refresh_token, {
+                httpOnly: true,
+                path: '/user/refresh_token',
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngay
+            })
+            res.status(200).json({ msg: 'Login succes' })
         }
     },
 }

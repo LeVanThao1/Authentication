@@ -44,7 +44,7 @@ function Header(props) {
     }
 
     const transForm = {
-        transform: true ? 'translateY(-5px)' : 0,
+        transform: isLogged ? 'translateY(10px)' : 'translateY(0px)',
     }
     return (
         <header>

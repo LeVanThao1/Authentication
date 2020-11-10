@@ -13,6 +13,8 @@ const authReduder = (state = initialState, actions) => {
                 ...state,
                 isLogged: true,
             }
+        case ACTIONS.GET_USERS:
+            return { ...state, ...actions.payload }
         default:
             return state
     }

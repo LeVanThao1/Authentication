@@ -47,18 +47,18 @@ function Login(props) {
     }
 
     const responseGoogle = async (response) => {
-        // try {
-        //     const res = await axios.post('/user/google_login', {
-        //         tokenId: response.tokenId,
-        //     })
-        //     setUser({ ...user, error: '', success: res.data.msg })
-        //     localStorage.setItem('firstLogin', true)
-        //     dispatch(dispatchLogin())
-        //     history.push('/')
-        // } catch (err) {
-        //     err.response.data.msg &&
-        //         setUser({ ...user, err: err.response.data.msg, success: '' })
-        // }
+        try {
+            const res = await axios.post('/user/google_login', {
+                tokenId: response.tokenId,
+            })
+            setUser({ ...user, error: '', success: res.data.msg })
+            localStorage.setItem('firstLogin', true)
+            dispatch(dispatchLogin())
+            history.push('/')
+        } catch (err) {
+            err.response.data.msg &&
+                setUser({ ...user, err: err.response.data.msg, success: '' })
+        }
     }
 
     const responseFacebook = async (response) => {
@@ -118,7 +118,7 @@ function Login(props) {
 
             <div className="social">
                 <GoogleLogin
-                    clientId="Your google client id"
+                    clientId="495868402334-hv0mqs9mh0u9ip19krurch7thn6a5n15.apps.googleusercontent.com"
                     buttonText="Login with google"
                     onSuccess={responseGoogle}
                     cookiePolicy={'single_host_origin'}
