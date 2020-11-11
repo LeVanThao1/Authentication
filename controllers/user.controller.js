@@ -270,48 +270,105 @@ const userCtl = {
         }
     },
     googleLogin: async (req, res, next) => {
-        const { tokenId } = req.body
-        const verify = await client.verifyIdToken({
-            idToken: tokenId,
-            audience: process.env.MAILLING_SERVICE_CLIENT_ID,
-        })
-        const { email_verified, email, name, picture } = verify.payload
+        try {
+            const { tokenId } = req.body
+            const verify = await client.verifyIdToken({
+                idToken: tokenId,
+                audience: process.env.MAILLING_SERVICE_CLIENT_ID,
+            })
+            const { email_verified, email, name, picture } = verify.payload
 
-        const password = email + process.env.GOOGLE_SECRET
-        const passwordHash = await bcrypt.hash(password, 12)
-        if (!email_verified) {
-            return res.status(400).json({ msg: 'Email verification failed.' })
-        }
-        const user = await User.findOne({ email })
-        if (user) {
-            const isMatch = await bcrypt.compare(password, user.password)
-            if (!isMatch) {
-                return res.status(400).json({ msg: 'Password is incorrect' })
+            const password = email + process.env.GOOGLE_SECRET
+            const passwordHash = await bcrypt.hash(password, 12)
+            if (!email_verified) {
+                return res
+                    .status(400)
+                    .json({ msg: 'Email verification failed.' })
             }
-            const refresh_token = createRefreshToken({ id: user.id })
-            res.cookie('refresh_token', refresh_token, {
-                httpOnly: true,
-                path: '/user/refresh_token',
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngay
-            })
-            res.status(200).json({ msg: 'Login succes' })
-        } else {
-            const newUser = new User({
-                name,
-                email,
-                password: passwordHash,
-                avatar: picture,
-            })
+            const user = await User.findOne({ email })
+            if (user) {
+                const refresh_token = createRefreshToken({ id: user.id })
+                res.cookie('refresh_token', refresh_token, {
+                    httpOnly: true,
+                    path: '/user/refresh_token',
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngay
+                })
+                res.status(200).json({ msg: 'Login succes' })
+            } else {
+                const newUser = new User({
+                    name,
+                    email,
+                    password: passwordHash,
+                    avatar: picture,
+                })
 
-            await newUser.save()
+                await newUser.save()
 
-            const refresh_token = createRefreshToken({ id: newUser._id })
-            res.cookie('refresh_token', refresh_token, {
-                httpOnly: true,
-                path: '/user/refresh_token',
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngay
-            })
-            res.status(200).json({ msg: 'Login succes' })
+                const refresh_token = createRefreshToken({ id: newUser._id })
+                res.cookie('refresh_token', refresh_token, {
+                    httpOnly: true,
+                    path: '/user/refresh_token',
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngay
+                })
+                res.status(200).json({ msg: 'Login succes' })
+            }
+        } catch (err) {
+            return res.status(500).json({ msg: err.message })
+        }
+    },
+    facebookLogin: async (req, res, next) => {
+        try {
+            const { accessToken, userID } = req.body
+
+            const URL = `https://graph.facebook.com/v2.9/${userID}/?fields=id,name,email,picture&access_token=${accessToken}`
+
+            const data = await fetch(URL)
+                .then((res) => res.json())
+                .then((res) => res)
+
+            const { id, email, name, picture } = data
+
+            console.log(id, email, name, picture)
+
+            if (!email)
+                return res
+                    .status(400)
+                    .json({ msg: 'Require email from facebook' })
+
+            const user = await User.findOne({ email })
+
+            const password = email + process.env.FACEBOOK_SECRET
+
+            const passwordHash = await bcrypt.hash(password, 12)
+
+            if (user) {
+                const refresh_token = createRefreshToken({ id: user.id })
+                res.cookie('refresh_token', refresh_token, {
+                    httpOnly: true,
+                    path: '/user/refresh_token',
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngay
+                })
+                res.status(200).json({ msg: 'Login succes' })
+            } else {
+                const newUser = new User({
+                    name,
+                    email,
+                    password: passwordHash,
+                    avatar: picture.data.url,
+                })
+
+                await newUser.save()
+
+                const refresh_token = createRefreshToken({ id: newUser._id })
+                res.cookie('refresh_token', refresh_token, {
+                    httpOnly: true,
+                    path: '/user/refresh_token',
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngay
+                })
+                res.status(200).json({ msg: 'Login succes' })
+            }
+        } catch (err) {
+            return res.status(500).json({ msg: err.message })
         }
     },
 }

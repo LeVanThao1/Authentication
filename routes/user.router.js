@@ -27,5 +27,7 @@ router.patch('/update', auth, userCtl.updateUser)
 
 router.patch('/update_role/:id', auth, authAdmin, userCtl.updateUsersRole)
 
-router.patch('/google_login', userCtl.googleLogin)
+router.post('/google_login', userCtl.googleLogin)
+
+router.post('/facebook_login', userCtl.facebookLogin)
 module.exports = router

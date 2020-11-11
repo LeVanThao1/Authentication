@@ -43,9 +43,9 @@ function Header(props) {
         )
     }
 
-    const transForm = {
-        transform: isLogged ? 'translateY(10px)' : 'translateY(0px)',
-    }
+    // const transForm = {
+    //     transform: isLogged ? 'translateY(10px)' : 'translateY(0px)',
+    // }
     return (
         <header>
             <div className="logo">
@@ -54,7 +54,7 @@ function Header(props) {
                 </h1>
             </div>
 
-            <ul style={transForm}>
+            <ul>
                 <li>
                     <Link to="/">
                         <i className="fas fa-shopping-cart"></i> Cart

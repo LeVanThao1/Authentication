@@ -29,6 +29,9 @@ const userSchema = new mongoose.Schema(
             default:
                 'https://res.cloudinary.com/thaovan/image/upload/v1604482967/mern-auth/avatar/male.jpg',
         },
+        facebookId: {
+            type: 'String',
+        },
     },
     {
         timestamps: true,

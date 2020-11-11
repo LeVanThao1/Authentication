@@ -62,20 +62,26 @@ function Login(props) {
     }
 
     const responseFacebook = async (response) => {
-        // try {
-        //     const { accessToken, userID } = response
-        //     const res = await axios.post('/user/facebook_login', {
-        //         accessToken,
-        //         userID,
-        //     })
-        //     setUser({ ...user, error: '', success: res.data.msg })
-        //     localStorage.setItem('firstLogin', true)
-        //     dispatch(dispatchLogin())
-        //     history.push('/')
-        // } catch (err) {
-        //     err.response.data.msg &&
-        //         setUser({ ...user, err: err.response.data.msg, success: '' })
-        // }
+        try {
+            const { accessToken, userID } = response
+            console.log(accessToken, userID)
+            if (!accessToken || !userID) {
+                setUser({ ...user, error: 'Login fail with facebook' })
+            } else {
+                const res = await axios.post('/user/facebook_login', {
+                    accessToken,
+                    userID,
+                })
+                setUser({ ...user, error: '', success: res.data.msg })
+                localStorage.setItem('firstLogin', true)
+                dispatch(dispatchLogin())
+                history.push('/')
+            }
+        } catch (err) {
+            console.log(err)
+            err.response.data.msg &&
+                setUser({ ...user, err: err.response.data.msg, success: '' })
+        }
     }
 
     return (
@@ -125,7 +131,7 @@ function Login(props) {
                 />
 
                 <FacebookLogin
-                    appId="Your facebook app id"
+                    appId="2803467413259426"
                     autoLoad={false}
                     fields="name,email,picture"
                     callback={responseFacebook}
