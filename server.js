@@ -22,9 +22,6 @@ app.use('/api', require('./routes/upload.router'))
 require('./helper/init-mongoose')
 // Routes
 // app.use('/api', require('./routes/upload'))
-app.use('/', (req, res, next) => {
-    res.json({ message: 'Le Van Thao' })
-})
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('client/build'))
