@@ -24,10 +24,49 @@ const uploadCtl = {
                     if (err) throw err
                     removeTmp(file.tempFilePath)
                     res.status(200).json({
+                        public_id: results.public_id,
                         url: results.secure_url,
                     })
                 },
             )
+        } catch (e) {
+            return res.status(500).json({ msg: e.messages })
+        }
+    },
+    upload: async (req, res, next) => {
+        try {
+            const file = req.files.file
+
+            cloudinary.v2.uploader.upload(
+                file.tempFilePath,
+                {
+                    folder: 'mern-auth/products',
+                },
+                async (err, results) => {
+                    if (err) throw err
+                    removeTmp(file.tempFilePath)
+                    res.status(200).json({
+                        url: results.secure_url,
+                    })
+                },
+            )
+        } catch (e) {
+            return res.status(500).json({ msg: e.messages })
+        }
+    },
+    delete: async (req, res, next) => {
+        try {
+            const { public_id } = req.params
+            if (!public_id)
+                return res.status(400).json({
+                    msg: 'No image selected',
+                })
+            cloudinary.v2.uploader.destroy(public_id, async (err, results) => {
+                if (err) throw err
+                res.status(200).json({
+                    msg: 'Deleted image',
+                })
+            })
         } catch (e) {
             return res.status(500).json({ msg: e.messages })
         }

@@ -1,6 +1,6 @@
-import { BrowserRouter as Router } from 'react-router-dom'
+import React, { Suspense, useEffect } from 'react'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import Header from './components/header'
-import Body from './components/body'
 import { useDispatch, useSelector } from 'react-redux'
 import {
     dispatchGetUser,
@@ -8,7 +8,17 @@ import {
     fetchUser,
 } from './redux/action/authAction'
 import axios from 'axios'
-import { useEffect } from 'react'
+import routes from './config/routes'
+import PrivateRoute from './components/PrivateRoute'
+import PublicRoute from './components/PublicRoute'
+import NotFound from './components/utils/notfound'
+import Home from './pages/Home'
+
+const Components = {}
+
+for (const c of routes) {
+    Components[c.component] = React.lazy(() => import('./pages/' + c.component))
+}
 
 function App() {
     const dispatch = useDispatch()
@@ -32,6 +42,7 @@ function App() {
             const getUser = () => {
                 dispatch(dispatchLogin())
                 return fetchUser(token).then((res) => {
+                    console.log(res)
                     dispatch(dispatchGetUser(res))
                 })
             }
@@ -43,7 +54,45 @@ function App() {
         <Router>
             <div className="App">
                 <Header />
-                <Body />
+                <Switch>
+                    {routes.map((route) => {
+                        const C = Components[route.component]
+                        return (
+                            <Route
+                                key={route.path}
+                                path={route.path}
+                                exact={true}
+                                render={() =>
+                                    route.isProtected ? (
+                                        <PrivateRoute
+                                            isAuthenticated={auth.isLogged}
+                                        >
+                                            <Suspense fallback={null}>
+                                                <C />
+                                            </Suspense>
+                                        </PrivateRoute>
+                                    ) : (
+                                        <PublicRoute
+                                            isAuthenticated={auth.isLogged}
+                                        >
+                                            <Suspense fallback={null}>
+                                                <C />
+                                            </Suspense>
+                                        </PublicRoute>
+                                    )
+                                }
+                            />
+                        )
+                    })}
+                    <Route
+                        path="*"
+                        render={() => (
+                            <Suspense fallback={null}>
+                                <NotFound />
+                            </Suspense>
+                        )}
+                    ></Route>
+                </Switch>
             </div>
         </Router>
     )

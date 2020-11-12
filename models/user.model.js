@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        cart: {
+            type: Array,
+            default: [],
+        },
         male: {
             type: Number,
             default: 0,

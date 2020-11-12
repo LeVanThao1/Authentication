@@ -4,8 +4,8 @@ import FacebookLogin from 'react-facebook-login'
 import { GoogleLogin } from 'react-google-login'
 import { useDispatch } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
-import { dispatchLogin } from '../../../redux/action/authAction'
-import { showErrMsg, showSuccessMsg } from '../../utils/notification'
+import { dispatchLogin } from '../../redux/action/authAction'
+import { showErrMsg, showSuccessMsg } from '../../components/utils/notification'
 import './style.css'
 
 Login.propTypes = {}
@@ -116,7 +116,7 @@ function Login(props) {
 
                 <div className="row">
                     <button type="submit">Login</button>
-                    <Link to="/forgot">Forgot your password?</Link>
+                    <Link to="/forgot_password">Forgot your password?</Link>
                 </div>
             </form>
 

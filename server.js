@@ -17,6 +17,7 @@ app.use(
 )
 
 app.use('/user', require('./routes/user.router'))
+app.use('/api', require('./routes/category.route'))
 app.use('/api', require('./routes/upload.router'))
 //connect database
 require('./helper/init-mongoose')

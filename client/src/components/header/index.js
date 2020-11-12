@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import './style.css'
 import { Link } from 'react-router-dom'
@@ -9,7 +9,7 @@ Header.propTypes = {}
 
 function Header(props) {
     const auth = useSelector((state) => state.auth)
-
+    const [menu, setMenu] = useState(false)
     const { user, isLogged } = auth
 
     const handleLogout = async () => {
@@ -34,6 +34,9 @@ function Header(props) {
                         <Link to="/profile">Profile</Link>
                     </li>
                     <li>
+                        <Link to="/history">History</Link>
+                    </li>
+                    <li>
                         <Link to="/" onClick={handleLogout}>
                             Logout
                         </Link>
@@ -48,31 +51,50 @@ function Header(props) {
     // }
     return (
         <header>
+            <div className="menu" onClick={() => setMenu(!menu)}>
+                <img src={Menu} alt="" width="30px" />
+            </div>
             <div className="logo">
                 <h1>
-                    <Link to="/">Le Van Thao</Link>
+                    <Link to="/">{auth.isAdmin ? 'ADMIN' : 'THAOLV SHOP'}</Link>
                 </h1>
             </div>
-
-            <ul>
-                <li>
-                    <Link to="/">
-                        <i className="fas fa-shopping-cart"></i> Cart
-                    </Link>
-                </li>
-                <li>
-                    {isLogged ? (
-                        userLink()
-                    ) : (
-                        <li>
-                            <Link to="/login">
-                                <i className="fas fa-user"></i> Sign in
-                            </Link>
-                        </li>
-                    )}
-                </li>
-            </ul>
+            <ul></ul>
         </header>
+
+        // <header>
+        //     <div className="logo">
+        //         <h1>
+        //             <Link to="/">{auth.isAdmin ? 'ADMIN' : 'THAOLV SHOP'}</Link>
+        //         </h1>
+        //     </div>
+
+        //     <ul>
+        //         <li>
+        //             <Link to="/">{auth.isAdmin ? 'Products' : 'Shop'}</Link>
+        //         </li>
+        //         <li>
+        //             {isLogged ? (
+        //                 userLink()
+        //             ) : (
+        //                 <li>
+        //                     <Link to="/login">
+        //                         <i className="fas fa-user"></i> Login * Register
+        //                     </Link>
+        //                 </li>
+        //             )}
+        //         </li>
+        //         {auth.Admin ? (
+        //             ''
+        //         ) : (
+        //             <li>
+        //                 <Link to="/">
+        //                     <i className="fas fa-shopping-cart"></i> Cart
+        //                 </Link>
+        //             </li>
+        //         )}
+        //     </ul>
+        // </header>
     )
 }
 
